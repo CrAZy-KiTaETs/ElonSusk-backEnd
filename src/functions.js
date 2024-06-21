@@ -1,4 +1,4 @@
-const URL = "192.168.0.2/users";
+const URL = "https://elonsusk.cloud/users";
 
 
 // Поиск юзера по ID в таблице
