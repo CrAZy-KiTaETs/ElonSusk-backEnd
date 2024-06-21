@@ -4,8 +4,22 @@ const bodyParser = require('body-parser');
 const cors = require("cors")
 const app = express();
 const port = process.env.port || 8080;
+const https = require('https');
+const http = require('http');
+const fs = require('fs');
+
+const options = {
+  key: fs.readFileSync('/etc/letsencrypt/live/elonsusk.cloud/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/elonsusk.cloud/fullchain.pem')
+};
 
 // Middleware
+app.use((req, res, next) => {
+  if (req.secure) {
+      return next();
+  }
+  res.redirect(`https://${req.headers.host}${req.url}`);
+});
 app.use(bodyParser.json());
 app.use(cors({
    origin: '*'
@@ -15,8 +29,17 @@ app.use(cors({
 const usersRouter = require('./routes/users');
 app.use('/users', usersRouter);
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+// app.listen(port, () => {
+//     console.log(`Server running on port ${port}`);
+// });
+
+
+http.createServer(app).listen(80, () => {
+  console.log('HTTP Server running on port 80');
+});
+
+https.createServer(options, app).listen(443, () => {
+  console.log('HTTPS Server running on port 443');
 });
 
 // Функции для работы с БД
