@@ -1,55 +1,55 @@
 // src/index.js
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require("cors")
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
 const app = express();
 const port = process.env.port || 8080;
-const https = require('https');
-const http = require('http');
-const fs = require('fs');
+const https = require("https");
+const http = require("http");
+const fs = require("fs");
 
 const options = {
-  key: fs.readFileSync('/etc/letsencrypt/live/elonsusk.cloud/privkey.pem'),
-  cert: fs.readFileSync('/etc/letsencrypt/live/elonsusk.cloud/fullchain.pem')
+  key: fs.readFileSync("/etc/letsencrypt/live/elonsusk.cloud/privkey.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/elonsusk.cloud/fullchain.pem"),
 };
 
 // Middleware
 app.use((req, res, next) => {
   if (req.secure) {
-      return next();
+    return next();
   }
   res.redirect(`https://${req.headers.host}${req.url}`);
 });
 app.use(bodyParser.json());
-app.use(cors({
-   origin: '*'
-}))
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
 // Routes
-const usersRouter = require('./routes/users');
-app.use('/users', usersRouter);
+const usersRouter = require("./routes/users");
+app.use("/users", usersRouter);
 
 // app.listen(port, () => {
 //     console.log(`Server running on port ${port}`);
 // });
 
-
 http.createServer(app).listen(80, () => {
-  console.log('HTTP Server running on port 80');
+  console.log("HTTP Server running on port 80");
 });
 
 https.createServer(options, app).listen(443, () => {
-  console.log('HTTPS Server running on port 443');
+  console.log("HTTPS Server running on port 443");
 });
 
 // Функции для работы с БД
 const {
-    addUserToSheet,
-    checkUserInBd,
-    findUserByRef,
-    updateUserInfo,
-  } = require("./functions");
-
+  addUserToSheet,
+  checkUserInBd,
+  findUserByRef,
+  updateUserInfo,
+} = require("./functions");
 
 // TELEGRAM BOT
 const TelegramBot = require("node-telegram-bot-api");
@@ -70,7 +70,7 @@ async function startFn(text, userId, username) {
   const ref = getRef();
   let newUser = {
     id: userId,
-    username: '',
+    username: "",
     ref: ref,
     wallet: "",
     balance: 0,
@@ -81,42 +81,46 @@ async function startFn(text, userId, username) {
     inf: "flase",
     inf_sub: "false",
     inf_link: "",
+    broken_platforms: 0,
+    last_session: "",
+    new_session: "",
   };
 
-  if (!userInBd) {
-    // если юзер перешел по реферальной ссылке
-    const referralCode = text.split(" ")[1];
-    if (referralCode) {
-      let influer
-      let invitedUser = await findUserByRef(referralCode);
-      invitedUser.balance += 1000;
-      invitedUser.ref_count++;
-      await updateUserInfo(invitedUser)
-      newUser.invited = "true";
-      if (referralCode == "q7p9w2o3k1l5z6x8") {
-        newUser.inf = "true";
-        console.log('инфлюенсер')
-
+  try {
+    if (!userInBd) {
+      // если юзер перешел по реферальной ссылке
+      const referralCode = text.split(" ")[1];
+      if (referralCode) {
+        let influer;
+        let invitedUser = await findUserByRef(referralCode);
+        invitedUser.balance += 1000;
+        invitedUser.ref_count++;
+        await updateUserInfo(invitedUser);
+        newUser.invited = "true";
+        if (referralCode == "q7p9w2o3k1l5z6x8") {
+          newUser.inf = "true";
+          console.log("инфлюенсер");
+        }
+        if (invitedUser.inf == "true") {
+          newUser.inf_sub = "true";
+          newUser.inf_link = invitedUser.id;
+          console.log("перешел по ссылке инфлюенсера");
+        }
+        if (invitedUser.inf_sub == "true") {
+          influer = await checkUserInBd(invitedUser.inf_link);
+          influer.balance += 500;
+          await updateUserInfo(influer);
+          console.log(influer, "перешел по ссылке друга инфлюенсера");
+        }
+        console.log(invitedUser, newUser, referralCode, "фукнкиця работает");
       }
-      if (invitedUser.inf == "true") {
-        newUser.inf_sub = "true";
-        newUser.inf_link = invitedUser.id;
-        console.log('перешел по ссылке инфлюенсера')
-      }
-      if (invitedUser.inf_sub == "true") {
-        influer = await checkUserInBd(invitedUser.inf_link);
-        influer.balance += 500;
-        await updateUserInfo(influer)
-        console.log(influer, 'перешел по ссылке друга инфлюенсера')
-
-      }
-      console.log(invitedUser, newUser, referralCode, "фукнкиця работает");
+      addUserToSheet(newUser);
+    } else {
+      return console.log("пользователь уже был зарегистрирован");
     }
-    addUserToSheet(newUser)
-  } else {
-    return console.log('пользователь уже был зарегистрирован')
+  } catch (error) {
+    console.log("ошибка при создании пользователя через бота", error);
   }
-
 }
 
 bot.on("message", async (msg) => {
@@ -130,6 +134,8 @@ bot.on("message", async (msg) => {
   if (/\/start(?:\?.*)?/.test(text)) {
     try {
       startFn(text, userId, username);
+      bot.sendMessage(chatId, `Спасибо за регистрацию`);
+
     } catch (err) {
       bot.sendMessage(chatId, `error... try again`);
     }
@@ -137,17 +143,16 @@ bot.on("message", async (msg) => {
   if (text == "lox") {
     try {
       bot.sendMessage(chatId, `HAHAAA`);
-
     } catch (err) {
       bot.sendMessage(chatId, `error... try again`);
     }
   }
-//   if (text == "/start") {
-//     try {
-//       bot.sendMessage(chatId, `HAHAAA`);
+  //   if (text == "/start") {
+  //     try {
+  //       bot.sendMessage(chatId, `HAHAAA`);
 
-//     } catch (err) {
-//       bot.sendMessage(chatId, `error... try again`);
-//     }
-//   }
+  //     } catch (err) {
+  //       bot.sendMessage(chatId, `error... try again`);
+  //     }
+  //   }
 });
