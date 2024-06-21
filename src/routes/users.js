@@ -203,7 +203,7 @@ router.get("/findById/:id", async (req, res) => {
     const [rows] = await pool.query("SELECT * FROM users WHERE id = ?", [
       userId,
     ]);
-    console.log(rows, "поиск по ID");
+    console.log(rows, "поиск по ID", userId, "Сам id");
 
     if (rows.length === 0) {
       return res.json(false);
