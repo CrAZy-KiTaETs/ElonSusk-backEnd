@@ -15,7 +15,7 @@ async function checkUserInBd(id) {
 // Поиск юзера по реферальной ссылке в таблице
 async function findUserByRef(ref) {
   try {
-    let res = await fetch(`${URL}/findByRef/${ref}`);
+    let res = await get(`${URL}/findByRef/${ref}`);
     let data = await res.json();
     console.log("Пользователь найден успешно!");
     return data;

@@ -18,6 +18,7 @@ router.post("/add", async (req, res) => {
     inf,
     inf_sub,
     inf_link,
+    broken_platforms
   } = req.body;
   const data = req.body;
   try {
