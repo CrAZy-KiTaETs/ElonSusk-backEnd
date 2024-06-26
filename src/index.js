@@ -13,7 +13,7 @@ const options = {
   cert: fs.readFileSync("/etc/letsencrypt/live/elonsusk.cloud/fullchain.pem"),
 };
 
-Middleware
+// Middleware
 app.use((req, res, next) => {
   if (req.secure) {
     return next();
