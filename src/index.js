@@ -8,18 +8,18 @@ const https = require("https");
 const http = require("http");
 const fs = require("fs");
 
-const options = {
-  key: fs.readFileSync("/etc/letsencrypt/live/elonsusk.cloud/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/elonsusk.cloud/fullchain.pem"),
-};
+// const options = {
+//   key: fs.readFileSync("/etc/letsencrypt/live/elonsusk.cloud/privkey.pem"),
+//   cert: fs.readFileSync("/etc/letsencrypt/live/elonsusk.cloud/fullchain.pem"),
+// };
 
 // Middleware
-app.use((req, res, next) => {
-  if (req.secure) {
-    return next();
-  }
-  res.redirect(`https://${req.headers.host}${req.url}`);
-});
+// app.use((req, res, next) => {
+//   if (req.secure) {
+//     return next();
+//   }
+//   res.redirect(`https://${req.headers.host}${req.url}`);
+// });
 app.use(bodyParser.json());
 app.use(
   cors({
@@ -31,17 +31,17 @@ app.use(
 const usersRouter = require("./routes/users");
 app.use("/users", usersRouter);
 
-// app.listen(port, () => {
-//     console.log(`Server running on port ${port}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
+
+// http.createServer(app).listen(80, () => {
+//   console.log("HTTP Server running on port 80");
 // });
 
-http.createServer(app).listen(80, () => {
-  console.log("HTTP Server running on port 80");
-});
-
-https.createServer(options, app).listen(443, () => {
-  console.log("HTTPS Server running on port 443");
-});
+// https.createServer(options, app).listen(443, () => {
+//   console.log("HTTPS Server running on port 443");
+// });
 
 // Функции для работы с БД
 const {
@@ -70,7 +70,7 @@ async function startFn(text, userId, username) {
   const ref = getRef();
   let newUser = {
     id: userId,
-    username: "",
+    username: username,
     ref: ref,
     wallet: "",
     balance: 0,
@@ -115,8 +115,10 @@ async function startFn(text, userId, username) {
         console.log(invitedUser, newUser, referralCode, "фукнкиця работает");
       }
       addUserToSheet(newUser);
+      return true;
     } else {
-      return console.log("пользователь уже был зарегистрирован");
+      console.log("пользователь уже был зарегистрирован");
+      return false;
     }
   } catch (error) {
     console.log("ошибка при создании пользователя через бота", error);
@@ -133,9 +135,12 @@ bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
   if (/\/start(?:\?.*)?/.test(text)) {
     try {
-      startFn(text, userId, username);
-      bot.sendMessage(chatId, `Спасибо за регистрацию`);
-
+      let newUser = await startFn(text, userId, username);
+      if (newUser) {
+        bot.sendMessage(chatId, `Спасибо за регистрацию`);
+      } else {
+        bot.sendMessage(chatId, `Вы уже были зарегистрированы`);
+      }
     } catch (err) {
       bot.sendMessage(chatId, `error... try again`);
     }

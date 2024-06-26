@@ -20,14 +20,14 @@ router.post("/add", async (req, res) => {
     inf_link,
     broken_platforms,
     last_session,
-    
+    new_session,
   } = req.body;
   const data = req.body;
   try {
     await pool.query(
       `INSERT INTO users 
-            (id, username, ref, wallet, balance, invited, is_sub, ref_count, twitter, inf, inf_sub, inf_link, broken_platforms, last_session) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (id, username, ref, wallet, balance, invited, is_sub, ref_count, twitter, inf, inf_sub, inf_link, broken_platforms, last_session, new_session) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         username,
@@ -43,6 +43,7 @@ router.post("/add", async (req, res) => {
         inf_link,
         broken_platforms,
         last_session,
+        new_session,
       ]
     );
     res.json({
@@ -60,10 +61,11 @@ router.post("/add", async (req, res) => {
       inf_link,
       broken_platforms,
       last_session,
+      new_session,
     });
     console.log(data, "пользователь добавлен");
   } catch (err) {
-    console.error(err.message);
+    console.error(err.message, "Ошибка при создания пользователя");
     res.status(500).send("Ошибка при создания пользователя");
   }
 });
@@ -200,10 +202,14 @@ router.get("/", async (req, res) => {
 router.get("/findById/:id", async (req, res) => {
   try {
     const userId = req.params.id;
+    console.log(userId);
     const [rows] = await pool.query("SELECT * FROM users WHERE id = ?", [
       userId,
     ]);
-    console.log(rows, "поиск по ID", userId, "Сам id");
+    if (!rows) {
+      return res.json("Пользователь не найден в БД");
+    }
+    console.log(rows, "поиск по ID", userId);
 
     if (rows.length === 0) {
       return res.json(false);
