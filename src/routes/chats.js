@@ -6,14 +6,14 @@ const pool = require("../db");
 router.get("/find/:id", async (req, res) => {
     try {
       let chatId = req.params.id;
-      const row = await pool.query("SELECT * FROM users_chats WHERE id = ?", [
+      const [rows] = await pool.query("SELECT id FROM users_chats WHERE id = ?", [
         chatId,
       ]);
-      if (!row) {
+      if (rows.length === 0) {
         return res.json(false);
       }
-      console.log("найденный id чата");
-      return res.json(row);
+      console.log("найденный id чата", rows);
+      return res.json(rows[0]);
     } catch (error) {
       console.log("Ошибка при поиске чата", error);
     }
