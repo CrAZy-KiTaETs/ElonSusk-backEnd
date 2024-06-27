@@ -253,6 +253,7 @@ router.get("/friends/:id", async (req, res) => {
   const [rows] = await pool.query("SELECT * FROM users WHERE invited_by = ?", [
     userId,
   ]);
+  
   console.log(rows, "это найденые друзья");
   return res.json(rows);
 });

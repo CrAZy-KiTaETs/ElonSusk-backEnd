@@ -53,7 +53,7 @@ const {
 
 // TELEGRAM BOT
 const TelegramBot = require("node-telegram-bot-api");
-const token = "802340318:AAFfYcgeSZug9mlTWR18oaFEdNDGjf_YFbY";
+const token = "6612718115:AAHttDcViXJAsOhBUto3ExMw6s-CicsJBu8";
 const bot = new TelegramBot(token, { polling: true });
 
 function getRef() {
@@ -84,7 +84,7 @@ async function startFn(text, userId, username) {
     broken_platforms: 0,
     last_session: "",
     new_session: "",
-    invited_by: ""
+    invited_by: 0
   };
 
   try {
