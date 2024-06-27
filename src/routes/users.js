@@ -21,7 +21,7 @@ router.post("/add", async (req, res) => {
     broken_platforms,
     last_session,
     new_session,
-    invited_by
+    invited_by,
   } = req.body;
   const data = req.body;
   try {
@@ -45,7 +45,7 @@ router.post("/add", async (req, res) => {
         broken_platforms,
         last_session,
         new_session,
-        invited_by
+        invited_by,
       ]
     );
     res.json({
@@ -64,7 +64,7 @@ router.post("/add", async (req, res) => {
       broken_platforms,
       last_session,
       new_session,
-      invited_by
+      invited_by,
     });
     console.log(data, "пользователь добавлен");
   } catch (err) {
@@ -92,7 +92,7 @@ router.put("/update/:id", async (req, res) => {
     broken_platforms,
     last_session,
     new_session,
-    invited_by
+    invited_by,
   } = req.body;
   const data = req.body;
   try {
@@ -247,11 +247,15 @@ router.get("/findByRef/:ref", async (req, res) => {
 });
 
 router.get("/friends/:id", async (req, res) => {
-  let userId = req.params.id 
-  const [rows] = await pool.query("SELECT * FROM users WHERE invited_by = ?", [userId])
-  console.log(rows, 'это найденые друзья')
-  return res.json(rows)
-} )
+  let userId = req.params.id;
+  console.log(userId, "поиск друзей начал работать");
+
+  const [rows] = await pool.query("SELECT * FROM users WHERE invited_by = ?", [
+    userId,
+  ]);
+  console.log(rows, "это найденые друзья");
+  return res.json(rows);
+});
 
 // Тестовое подключение к базе данных
 router.get("/test", async (req, res) => {
