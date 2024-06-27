@@ -23,7 +23,7 @@ router.get("/find/:id", async (req, res) => {
   router.post("/add/", async (req, res) => {
     try {
       console.log(req.body, "Это тело запроса");
-      let id = req.body;
+      let id = req.body.id;
       await pool.query(
         `INSERT INTO users_chats 
                 (id) 
