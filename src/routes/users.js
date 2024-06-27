@@ -4,7 +4,7 @@ const router = express.Router();
 const pool = require("../db");
 
 // Добавление нового пользователя
-router.post("users/add", async (req, res) => {
+router.post("/add", async (req, res) => {
   const {
     id,
     username,
@@ -74,7 +74,7 @@ router.post("users/add", async (req, res) => {
 });
 
 // Обновление данных пользователя
-router.put("users/update/:id", async (req, res) => {
+router.put("/update/:id", async (req, res) => {
   const userId = req.params.id;
   const {
     id,
@@ -139,7 +139,7 @@ router.put("users/update/:id", async (req, res) => {
 });
 
 // Обновление баланса пользователя
-router.put("users/updateBalance/", async (req, res) => {
+router.put("/updateBalance/", async (req, res) => {
   // const userId = req.params.id;
   const { id, balance } = req.body;
   console.log(id, typeof balance);
@@ -167,7 +167,7 @@ router.put("users/updateBalance/", async (req, res) => {
 });
 
 // Обновление кошелька пользователя
-router.patch("users/updateWallet/", async (req, res) => {
+router.patch("/updateWallet/", async (req, res) => {
   // const userId = req.params.id;
   const { id, wallet } = req.body;
   try {
@@ -192,7 +192,7 @@ router.patch("users/updateWallet/", async (req, res) => {
 });
 
 // Получение всех пользователей
-router.get("users/", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const [rows] = await pool.query("SELECT * FROM users");
 
@@ -204,7 +204,7 @@ router.get("users/", async (req, res) => {
   }
 });
 
-router.get("users/findById/:id", async (req, res) => {
+router.get("/findById/:id", async (req, res) => {
   try {
     const userId = req.params.id;
     console.log(userId);
@@ -227,7 +227,7 @@ router.get("users/findById/:id", async (req, res) => {
   }
 });
 
-router.get("users/findByRef/:ref", async (req, res) => {
+router.get("/findByRef/:ref", async (req, res) => {
   try {
     const userRef = "https://t.me/ElonSusk_bot?start=" + req.params.ref;
     const [rows] = await pool.query("SELECT * FROM users WHERE ref = ?", [
@@ -246,7 +246,7 @@ router.get("users/findByRef/:ref", async (req, res) => {
   }
 });
 
-router.get("users/friends/:id", async (req, res) => {
+router.get("/friends/:id", async (req, res) => {
   let userId = req.params.id;
   console.log(userId, "поиск друзей начал работать");
 
@@ -258,32 +258,6 @@ router.get("users/friends/:id", async (req, res) => {
   return res.json(rows);
 });
 
-router.get("/users_chats/find/:id", async (req, res) => {
-  let chatId = req.params.id;
-  const row = await pool.query("SELECT * FROM users_chats WHERE id = ?", [
-    chatId,
-  ]);
-  console.log("найденный id чата");
-  return res.json(row);
-});
-
-// Добавление нового пользователя
-router.post("/users_chats/add/", async (req, res) => {
-  console.log(req.body, "Это тело запроса")
-  let id = req.body
-  try {
-    await pool.query(
-      `INSERT INTO users_chats 
-            (id) 
-            VALUES (?)`,
-      [id]
-    );
-    res.status(200).send("Чат успешно сохранен");
-  } catch (err) {
-    console.error(err.message, "Ошибка при создания пользователя");
-    res.status(500).send("Ошибка при создания пользователя");
-  }
-});
 
 // Тестовое подключение к базе данных
 router.get("users/test", async (req, res) => {
