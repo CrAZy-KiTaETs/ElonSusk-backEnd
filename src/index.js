@@ -84,6 +84,7 @@ async function startFn(text, userId, username) {
     broken_platforms: 0,
     last_session: "",
     new_session: "",
+    invited_by: ""
   };
 
   try {
@@ -97,6 +98,7 @@ async function startFn(text, userId, username) {
         invitedUser.ref_count++;
         await updateUserInfo(invitedUser);
         newUser.invited = "true";
+        newUser.invited_by = invitedUser.id
         if (referralCode == "q7p9w2o3k1l5z6x8") {
           newUser.inf = "true";
           console.log("инфлюенсер");

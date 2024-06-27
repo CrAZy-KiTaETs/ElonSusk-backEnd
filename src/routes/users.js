@@ -21,13 +21,14 @@ router.post("/add", async (req, res) => {
     broken_platforms,
     last_session,
     new_session,
+    invited_by
   } = req.body;
   const data = req.body;
   try {
     await pool.query(
       `INSERT INTO users 
-            (id, username, ref, wallet, balance, invited, is_sub, ref_count, twitter, inf, inf_sub, inf_link, broken_platforms, last_session, new_session) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (id, username, ref, wallet, balance, invited, is_sub, ref_count, twitter, inf, inf_sub, inf_link, broken_platforms, last_session, new_session, invited_by) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         id,
         username,
@@ -44,6 +45,7 @@ router.post("/add", async (req, res) => {
         broken_platforms,
         last_session,
         new_session,
+        invited_by
       ]
     );
     res.json({
@@ -62,6 +64,7 @@ router.post("/add", async (req, res) => {
       broken_platforms,
       last_session,
       new_session,
+      invited_by
     });
     console.log(data, "пользователь добавлен");
   } catch (err) {
@@ -89,6 +92,7 @@ router.put("/update/:id", async (req, res) => {
     broken_platforms,
     last_session,
     new_session,
+    invited_by
   } = req.body;
   const data = req.body;
   try {
@@ -96,7 +100,7 @@ router.put("/update/:id", async (req, res) => {
     const [result] = await pool.query(
       `UPDATE users SET
         id = ?, username = ?, ref = ?, wallet = ?, balance = ?, invited = ?,
-        is_sub = ?, ref_count = ?, twitter = ?, inf = ?, inf_sub = ?, inf_link = ?, broken_platforms = ?, last_session = ?, 	new_session = ?
+        is_sub = ?, ref_count = ?, twitter = ?, inf = ?, inf_sub = ?, inf_link = ?, broken_platforms = ?, last_session = ?, new_session = ?, invited_by = ?
        WHERE id = ?`,
       [
         id,
@@ -114,6 +118,7 @@ router.put("/update/:id", async (req, res) => {
         broken_platforms,
         last_session,
         new_session,
+        invited_by,
         userId,
       ]
     );
@@ -240,6 +245,13 @@ router.get("/findByRef/:ref", async (req, res) => {
     res.status(500).send("Ошибка при поиске пользователя по REF");
   }
 });
+
+router.get("/friends/:id", async (req, res) => {
+  let userId = req.params.id 
+  const [rows] = await pool.query("SELECT * FROM users WHERE invited_by = ?", [userId])
+  console.log(rows, 'это найденые друзья')
+  return res.json(rows)
+} )
 
 // Тестовое подключение к базе данных
 router.get("/test", async (req, res) => {
