@@ -1,6 +1,5 @@
 const URL = "https://elonsusk.cloud/users";
 
-
 // Поиск юзера по ID в таблице
 async function checkUserInBd(id) {
   try {
@@ -8,7 +7,7 @@ async function checkUserInBd(id) {
     let user = await res.json();
     return user;
   } catch (error) {
-    console.log("Ошибка при поиске пользователя". error);
+    console.log("Ошибка при поиске пользователя".error);
   }
 }
 
@@ -55,10 +54,35 @@ async function addUserToSheet(body) {
     console.log("ошибка при добавлении пользователя", error);
   }
 }
+
+async function findChat(id) {
+  try {
+    const data = await fetch(`https://elonsusk.cloud/chats/find/${id}`);
+    const res = await data.json();
+    return res;
+  } catch (error) {
+    console.log("ошибка при поиске чата", error);
+  }
+}
+
+async function addChat(id) {
+  try {
+    await fetch("https://elonsusk.cloud/chats/add/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id: id }),
+    });
+  } catch (error) {
+    console.log("ошибка при добавлении чата", error);
+  }
+}
 module.exports = {
-    addUserToSheet,
-    checkUserInBd,
-    findUserByRef,
-    updateUserInfo,
-  };
-  
+  addUserToSheet,
+  checkUserInBd,
+  findUserByRef,
+  updateUserInfo,
+  findChat, 
+  addChat
+};

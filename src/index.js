@@ -51,6 +51,8 @@ const {
   checkUserInBd,
   findUserByRef,
   updateUserInfo,
+  findChat,
+  addChat,
 } = require("./functions");
 
 // TELEGRAM BOT
@@ -86,7 +88,7 @@ async function startFn(text, userId, username) {
     broken_platforms: 0,
     last_session: "",
     new_session: "",
-    invited_by: 0
+    invited_by: 0,
   };
 
   try {
@@ -100,7 +102,7 @@ async function startFn(text, userId, username) {
         invitedUser.ref_count++;
         await updateUserInfo(invitedUser);
         newUser.invited = "true";
-        newUser.invited_by = invitedUser.id
+        newUser.invited_by = invitedUser.id;
         if (referralCode == "q7p9w2o3k1l5z6x8") {
           newUser.inf = "true";
           console.log("инфлюенсер");
@@ -137,8 +139,15 @@ bot.on("message", async (msg) => {
   const username = msg.from.username ? msg.from.username : msg.from.first_name;
   // ID чата
   const chatId = msg.chat.id;
+
   if (/\/start(?:\?.*)?/.test(text)) {
     try {
+      // сохранение чата в бд
+      const findedChat = await findChat(chatId);
+      if (!findedChat) {
+        addChat(chatId);
+      }
+      // добавление пользователя в бд
       let newUser = await startFn(text, userId, username);
       if (newUser) {
         bot.sendMessage(chatId, `Спасибо за регистрацию`);
